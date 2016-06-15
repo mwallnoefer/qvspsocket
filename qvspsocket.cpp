@@ -290,7 +290,7 @@ void QVSPSocket::connectToDevice(const QBluetoothDeviceInfo& remoteDeviceInfo)
 
                 if (info == txFifoChar)
                 {
-                    if ((qint64)readBuffer.size() + newValue.size() + 1 > maxBufferSize)
+                    if (qint64(readBuffer.size()) + newValue.size() + 1 > maxBufferSize)
                     {
                         // there is no space left, should not happen due to data loss
                         service->writeCharacteristic(modemInChar, MODEM_CLEAR_BIT[m]); // RTS clear
@@ -301,7 +301,7 @@ void QVSPSocket::connectToDevice(const QBluetoothDeviceInfo& remoteDeviceInfo)
 
                     readBuffer.append(newValue);
 
-                    if ((qint64)readBuffer.size() + PACKET_SIZE + 1 > maxBufferSize)
+                    if (qint64(readBuffer.size()) + PACKET_SIZE + 1 > maxBufferSize)
                         // okay, now the buffer has become full
                         service->writeCharacteristic(modemInChar, MODEM_CLEAR_BIT[m]); // RTS clear
 
@@ -454,9 +454,9 @@ qint64 QVSPSocket::readData(char *data, qint64 maxlen)
     buff.open(QIODevice::ReadOnly);
     auto res = buff.read(data, maxlen);
     buff.close();
-    readBuffer.remove(0, (int)res);
+    readBuffer.remove(0, int(res));
 
-    if (!rts && (qint64)readBuffer.size() + PACKET_SIZE + 1 <= maxBufferSize)
+    if (!rts && qint64(readBuffer.size()) + PACKET_SIZE + 1 <= maxBufferSize)
         // buffer flushed, send may continue
         service->writeCharacteristic(modemInChar, MODEM_SET_BIT[m]); // RTS set
 
@@ -472,13 +472,13 @@ qint64 QVSPSocket::writeData(const char *data, qint64 len)
         return -1;
     }
 
-    if ((qint64)writeBuffer.size() + len + 1 > maxBufferSize) {
+    if (qint64(writeBuffer.size()) + len + 1 > maxBufferSize) {
         this->setErrorString(tr("Internal write buffer overflow (max. size %1), write failed").arg(maxBufferSize));
         emit error(_error = QLowEnergyService::ServiceError::OperationError);
         return -1;
     }
 
-    writeBuffer.append(data, (int)len);
+    writeBuffer.append(data, int(len));
     writeInternal(); // try to write immediately, otherwise after CTS is set
     return len;
 }
