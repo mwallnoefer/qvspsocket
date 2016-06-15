@@ -344,9 +344,6 @@ void QVSPSocket::connectToDevice(const QBluetoothDeviceInfo& remoteDeviceInfo)
                     if (rts && !isOpen())
                         // first RTS written, now read CTS (we could have missed its notification)
                         service->readCharacteristic(modemOutChar);
-                    else if (!rts && (qint64)readBuffer.size() + PACKET_SIZE + 1 <= maxBufferSize)
-                        // buffer could have been flushed in the meantime, send may continue
-                        service->writeCharacteristic(modemInChar, MODEM_SET_BIT[m]); // RTS set
                 }
                 else if (info == brspModeChar)
                     // BlueRadios changed into data mode, now proceed as usual
@@ -481,6 +478,33 @@ qint64 QVSPSocket::writeData(const char *data, qint64 len)
     writeBuffer.append(data, int(len));
     writeInternal(); // try to write immediately, otherwise after CTS is set
     return len;
+}
+
+/*!
+ * \brief QVSPSocket::unsetRTS Unsets Request to Send (RTS)
+ *
+ * This manual flow control operation should be called when the application is
+ * unable to accept further data (e.g. terminates or goes into standby).
+ */
+void QVSPSocket::unsetRTS()
+{
+    if (rts)
+        service->writeCharacteristic(modemInChar, MODEM_CLEAR_BIT[m]); // RTS clear
+}
+
+/*!
+ * \brief QVSPSocket::setRTS Sets Request to Send (RTS)
+ *
+ * This manual flow control operation should be called when the application is
+ * resumed from a previous unset RTS operation (e.g. turns active again).
+ *
+ * The operation silently fails when the read buffer capacity is exhausted.
+ */
+void QVSPSocket::setRTS()
+{
+    if (!rts && qint64(readBuffer.size()) + PACKET_SIZE + 1 <= maxBufferSize)
+        // buffer flushed, send may continue
+        service->writeCharacteristic(modemInChar, MODEM_SET_BIT[m]); // RTS set
 }
 
 } // namespace

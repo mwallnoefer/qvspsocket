@@ -93,6 +93,9 @@ public:
     qint64 bytesToWrite() const override;
     bool canReadLine() const override;
 
+    void unsetRTS();
+    void setRTS();
+
     QBluetoothSocket::SocketState state() const;
     QLowEnergyService::ServiceError error() const;
 
