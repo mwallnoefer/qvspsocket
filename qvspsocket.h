@@ -37,18 +37,22 @@
 
 #include "qvspsocket_global.h"
 
-namespace MiVSP {
-
-enum class Manufacturer
+namespace MiVSP
 {
-    Laird,
-    BlueRadios
-};
 
 class QVSPSOCKETSHARED_EXPORT QVSPSocket : public QIODevice
 {
     Q_OBJECT
 
+public:
+    enum class Manufacturer
+    {
+        Laird,
+        BlueRadios
+    };
+    Q_ENUM(Manufacturer)
+
+private:
     QBluetoothSocket::SocketState _state = QBluetoothSocket::SocketState::UnconnectedState;
     QLowEnergyService::ServiceError _error = QLowEnergyService::ServiceError::NoError;
 

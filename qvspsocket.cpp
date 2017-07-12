@@ -35,8 +35,12 @@
 #include "qvspsocket.h"
 #include <QMap>
 #include <QBuffer>
+#include <QVariant>
 
-namespace MiVSP {
+namespace MiVSP
+{
+
+using Manufacturer = QVSPSocket::Manufacturer;
 
 // service UUIDs
 static const QMap<QBluetoothUuid, Manufacturer> VSP_SERVICE =
@@ -49,13 +53,6 @@ static const QMap<QBluetoothUuid, Manufacturer> VSP_SERVICE =
         QBluetoothUuid(QStringLiteral("da2b84f1-6279-48de-bdc0-afbea0226079")),
         Manufacturer::BlueRadios
     }
-};
-
-// manufacturer
-static const QMap<Manufacturer, QString> MANUFACTURER =
-{
-    { Manufacturer::Laird, QStringLiteral("Laird") },
-    { Manufacturer::BlueRadios, QStringLiteral("BlueRadios") }
 };
 
 // characteristics
@@ -212,7 +209,7 @@ void QVSPSocket::connectToDevice(const QBluetoothDeviceInfo& remoteDeviceInfo)
             return;
         }
 
-        qDebug().noquote() << QStringLiteral("VSP service mode: ") << MANUFACTURER[m];
+        qDebug().noquote() << QStringLiteral("VSP service mode: ") << QVariant::fromValue(m).toString();
 
         connect(service, static_cast<void(QLowEnergyService::*)(QLowEnergyService::ServiceError)>(&QLowEnergyService::error),
                          [this](QLowEnergyService::ServiceError error) {
