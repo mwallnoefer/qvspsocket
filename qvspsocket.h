@@ -39,7 +39,7 @@
 
 namespace MiVSP {
 
-enum Manufacturer
+enum class Manufacturer
 {
     Laird,
     BlueRadios

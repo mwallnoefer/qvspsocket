@@ -33,6 +33,7 @@
  */
 
 #include "qvspsocket.h"
+#include <QMap>
 #include <QBuffer>
 
 namespace MiVSP {
@@ -51,10 +52,10 @@ static const QMap<QBluetoothUuid, Manufacturer> VSP_SERVICE =
 };
 
 // manufacturer
-static const QVector<QString> MANUFACTURER =
+static const QMap<Manufacturer, QString> MANUFACTURER =
 {
-    QStringLiteral("Laird"),
-    QStringLiteral("BlueRadios")
+    { Manufacturer::Laird, QStringLiteral("Laird") },
+    { Manufacturer::BlueRadios, QStringLiteral("BlueRadios") }
 };
 
 // characteristics
@@ -65,21 +66,25 @@ struct Characteristic
     QBluetoothUuid RX_FIFO;    // Client TX
     QBluetoothUuid TX_FIFO;    // Client RX
 };
-static const QVector<Characteristic> CHARACTERISTIC =
+static const QMap<Manufacturer, Characteristic> CHARACTERISTIC =
 {
     {
-        // Laird
-        QBluetoothUuid(QStringLiteral("569a2003-b87f-490c-92cb-11ba5ea5167c")),
-        QBluetoothUuid(QStringLiteral("569a2002-b87f-490c-92cb-11ba5ea5167c")),
-        QBluetoothUuid(QStringLiteral("569a2001-b87f-490c-92cb-11ba5ea5167c")),
-        QBluetoothUuid(QStringLiteral("569a2000-b87f-490c-92cb-11ba5ea5167c"))
+        Manufacturer::Laird,
+        {
+            QBluetoothUuid(QStringLiteral("569a2003-b87f-490c-92cb-11ba5ea5167c")),
+            QBluetoothUuid(QStringLiteral("569a2002-b87f-490c-92cb-11ba5ea5167c")),
+            QBluetoothUuid(QStringLiteral("569a2001-b87f-490c-92cb-11ba5ea5167c")),
+            QBluetoothUuid(QStringLiteral("569a2000-b87f-490c-92cb-11ba5ea5167c"))
+        }
     },
     {
-        // BlueRadios
-        QBluetoothUuid(QStringLiteral("0A1934F5-24B8-4F13-9842-37BB167C6AFF")),
-        QBluetoothUuid(QStringLiteral("FDD6B4D3-046D-4330-BDEC-1FD0C90CB43B")),
-        QBluetoothUuid(QStringLiteral("BF03260C-7205-4C25-AF43-93B1C299D159")),
-        QBluetoothUuid(QStringLiteral("18CDA784-4BD3-4370-85BB-BFED91EC86AF"))
+        Manufacturer::BlueRadios,
+        {
+            QBluetoothUuid(QStringLiteral("0A1934F5-24B8-4F13-9842-37BB167C6AFF")),
+            QBluetoothUuid(QStringLiteral("FDD6B4D3-046D-4330-BDEC-1FD0C90CB43B")),
+            QBluetoothUuid(QStringLiteral("BF03260C-7205-4C25-AF43-93B1C299D159")),
+            QBluetoothUuid(QStringLiteral("18CDA784-4BD3-4370-85BB-BFED91EC86AF"))
+        }
     }
 };
 
@@ -92,19 +97,15 @@ static const QByteArray DESC_NOTIFY_ON = QByteArray::fromHex(QByteArrayLiteral("
 static const QByteArray DESC_NOTIFY_OFF = QByteArray::fromHex(QByteArrayLiteral("0000"));
 
 // RTS/CTS set/unset flags
-static const QVector<QByteArray> MODEM_SET_BIT =
+static const QMap<Manufacturer, QByteArray> MODEM_SET_BIT =
 {
-    // Laird
-    QByteArray(1, 0x01),
-    // BlueRadios
-    QByteArray(1, 0x00)
+    { Manufacturer::Laird, QByteArray(1, 0x01) },
+    { Manufacturer::BlueRadios, QByteArray(1, 0x00) }
 };
-static const QVector<QByteArray> MODEM_CLEAR_BIT =
+static const QMap<Manufacturer, QByteArray> MODEM_CLEAR_BIT =
 {
-    // Laird
-    QByteArray(1, 0x00),
-    // BlueRadios
-    QByteArray(1, 0x01)
+    { Manufacturer::Laird, QByteArray(1, 0x00) },
+    { Manufacturer::BlueRadios, QByteArray(1, 0x01) }
 };
 
 // maximum packet data size (20 is the default for Bluetooth LE)
