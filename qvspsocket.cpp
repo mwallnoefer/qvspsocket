@@ -182,22 +182,22 @@ void QVSPSocket::connectToDevice(const QBluetoothDeviceInfo& remoteDeviceInfo)
     if (isOpen())
         return;
 
-    controller = new QLowEnergyController(remoteDeviceInfo);
-    connect(controller, static_cast<void(QLowEnergyController::*)(QLowEnergyController::Error)>(&QLowEnergyController::error), [this](QLowEnergyController::Error) {
+    controller = QSharedPointer<QLowEnergyController>::create(remoteDeviceInfo);
+    connect(controller.data(), static_cast<void(QLowEnergyController::*)(QLowEnergyController::Error)>(&QLowEnergyController::error), [this](QLowEnergyController::Error) {
         this->setErrorString(controller->errorString());
         emit error(_error = QLowEnergyService::ServiceError::OperationError);
     });
-    connect(controller, &QLowEnergyController::connected, [this]() {
+    connect(controller.data(), &QLowEnergyController::connected, [this]() {
         controller->discoverServices();
     });
-    connect(controller, &QLowEnergyController::discoveryFinished, [this]() {
+    connect(controller.data(), &QLowEnergyController::discoveryFinished, [this]() {
         // look for the first VSP service found
         for (const QBluetoothUuid& uuid: controller->services())
         {
             if (VSP_SERVICE.contains(uuid))
             {
                 // this one works, let us enable it
-                service = controller->createServiceObject(uuid);
+                service = controller->createServiceObject(uuid, controller.data());
                 m = VSP_SERVICE[uuid];
                 break;
             }
@@ -387,8 +387,8 @@ void QVSPSocket::close()
     QIODevice::close();
 
     // re-init
-    service.clear();
-    controller.clear();
+    controller.reset();
+    service = nullptr;
     cts = false;
     rts = false;
     readBuffer.clear();

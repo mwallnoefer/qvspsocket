@@ -58,8 +58,8 @@ private:
 
     Manufacturer m = Manufacturer::Laird;
 
-    QPointer<QLowEnergyController> controller;
-    QPointer<QLowEnergyService> service;
+    QSharedPointer<QLowEnergyController> controller;
+    QLowEnergyService *service = nullptr;
 
     QLowEnergyCharacteristic rxFifoChar;
     QLowEnergyCharacteristic txFifoChar;

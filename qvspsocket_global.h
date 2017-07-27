@@ -46,6 +46,6 @@
 #include <QIODevice>
 #include <QLowEnergyController>
 #include <QBluetoothSocket>
-#include <QPointer>
+#include <QSharedPointer>
 
 #endif // QVSPSOCKET_GLOBAL_H
