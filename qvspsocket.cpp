@@ -36,6 +36,7 @@
 #include <QMap>
 #include <QBuffer>
 #include <QVariant>
+#include <QAbstractEventDispatcher>
 
 namespace MiVSP
 {
@@ -444,6 +445,9 @@ qint64 QVSPSocket::readData(char *data, qint64 maxlen)
         emit error(_error = QLowEnergyService::ServiceError::OperationError);
         return -1;
     }
+
+    // check for eventual incoming data
+    QAbstractEventDispatcher::instance()->processEvents(QEventLoop::ProcessEventsFlag::AllEvents);
 
     QBuffer buff(&readBuffer);
     buff.open(QIODevice::ReadOnly);
