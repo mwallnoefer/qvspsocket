@@ -471,6 +471,9 @@ qint64 QVSPSocket::writeData(const char *data, qint64 len)
         return -1;
     }
 
+    // check for eventual CTS variation
+    QAbstractEventDispatcher::instance()->processEvents(QEventLoop::ProcessEventsFlag::AllEvents);
+
     if (qint64(writeBuffer.size()) + len + 1 > maxBufferSize) {
         this->setErrorString(tr("Internal write buffer overflow (max. size %1), write failed").arg(maxBufferSize));
         emit error(_error = QLowEnergyService::ServiceError::OperationError);
